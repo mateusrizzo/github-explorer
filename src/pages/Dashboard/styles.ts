@@ -60,7 +60,7 @@ export const Repositories = styled.div`
         transition: transform 0.2s;
 
         & + a {
-            margin-top: 10px;
+            margin-top: 16px;
         }
 
         &:hover{
