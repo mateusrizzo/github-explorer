@@ -1,6 +1,8 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {useRouteMatch, Link} from 'react-router-dom';
-import {FiChevronLeft, FiChevronRight} from 'react-icons/fi'
+import {FiChevronLeft, FiChevronRight} from 'react-icons/fi';
+
+import api from '../../services/api';
 
 import logo from '../../assets/logo.svg';
 
@@ -11,8 +13,33 @@ interface RepositoryParams {
     repository: string;
 }
 
+interface Repository {
+    full_name: string;
+    description: string;
+    stargazers_count: number;
+    forks_count: number;
+    open_issues_count: number
+    owner: {
+        login: string;
+        avatar_url: string;
+    };
+}
 const Repository: React.FC = () => {
+    const [repository, setRepository] = useState(null);
+    const [issues, setIssues] = useState([])
     const {params} = useRouteMatch<RepositoryParams>();
+
+    useEffect(() => {
+        api.get(`repos/${params.repository}`)
+        .then(response => {
+            console.log(response.data);
+        })
+        api.get(`repos/${params.repository}/issues`)
+        .then(response => {
+            console.log(response.data);
+        })
+    }, [params.repository]);
+
     return (
        <> 
        <Header>
@@ -41,7 +68,7 @@ const Repository: React.FC = () => {
                </li>
                <li>
                    <strong>14k</strong>
-                   <span>Issues</span>
+                   <span>Issues abertas</span>
                </li>
            </ul>
        </RepositoryInfo>
