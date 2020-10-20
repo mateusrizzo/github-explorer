@@ -24,19 +24,29 @@ interface Repository {
         avatar_url: string;
     };
 }
+
+interface Issue {
+    title: string;
+    id: number;
+    html_url: string;
+    user: {
+        login: string;
+    }
+}
+
 const Repository: React.FC = () => {
-    const [repository, setRepository] = useState(null);
-    const [issues, setIssues] = useState([])
+    const [repository, setRepository] = useState<Repository | null>(null);
+    const [issues, setIssues] = useState<Issue[]>([]);
     const {params} = useRouteMatch<RepositoryParams>();
 
     useEffect(() => {
         api.get(`repos/${params.repository}`)
         .then(response => {
-            console.log(response.data);
+            setRepository(response.data);
         })
         api.get(`repos/${params.repository}/issues`)
         .then(response => {
-            console.log(response.data);
+            setIssues(response.data);
         })
     }, [params.repository]);
 
@@ -49,39 +59,42 @@ const Repository: React.FC = () => {
                 Voltar
            </Link>
        </Header> 
-       <RepositoryInfo>
-           <header>
-             <img src="https://avatars0.githubusercontent.com/u/67802605?s=460&u=a709d8bb80a43019b49737b767ed11e4028f742f&v=4" alt="Mateus Rizzo"/>
-                <div>
-                    <strong>mateusrizzo/timetracker-server</strong>
-                    <p>Descrição interessantona</p>
-                </div>  
-           </header>
-           <ul>
-               <li>
-                   <strong>1000</strong>
-                   <span>Stars</span>
-               </li>
-               <li>
-                   <strong>940</strong>
-                   <span>Forks</span>
-               </li>
-               <li>
-                   <strong>14k</strong>
-                   <span>Issues abertas</span>
-               </li>
-           </ul>
-       </RepositoryInfo>
+       {repository && (
+        <RepositoryInfo>
+            <header>
+                <img src={repository.owner.avatar_url} alt={repository.owner.login}/>
+                    <div>
+                        <strong>{repository.full_name}</strong>
+                        <p>{repository.description}</p>
+                    </div>  
+            </header>
+            <ul>
+                <li>
+                        <strong>{repository.stargazers_count}</strong>
+                    <span>Stars</span>
+                </li>
+                <li>
+                    <strong>{repository.forks_count}</strong>
+                    <span>Forks</span>
+                </li>
+                <li>
+                    <strong>{repository.open_issues_count}</strong>
+                    <span>Issues abertas</span>
+                </li>
+            </ul>
+        </RepositoryInfo>
+       )}
 
        <Issues>
-           <Link to='blablabla'>
-                    <img src="" alt="" />
+           {issues.map(issue => (
+                <a key={issue.id} href={issue.html_url}>
                     <div>
-                        <strong>Tá muito ruim, nossa</strong>
-                        <p>Odiei, 5 estrelas</p>
+                        <strong>{issue.title}</strong>
+                        <p>{issue.user.login}</p>
                     </div>
                     <FiChevronRight size={20} />
-                </Link>
+                </a>
+                ))}
        </Issues>
        </>
     );
